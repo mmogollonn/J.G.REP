@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Joseph Group — AI Value Calculator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#F0F2F5;color:#0F1117;min-height:100vh;padding:28px 20px}
+.page-header{max-width:1060px;margin:0 auto 24px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.page-header h1{font-size:21px;font-weight:600;color:#0F1117;letter-spacing:-.3px}
+.page-header p{font-size:12px;color:#6B7280;margin-top:3px}
+.hbadge{background:#1A1A2E;color:#fff;font-size:11px;font-weight:500;padding:6px 14px;border-radius:20px;letter-spacing:.3px;white-space:nowrap}
+.kpi-row{max-width:1060px;margin:0 auto 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:#fff;border-radius:14px;padding:18px 20px;border:1px solid #E5E7EB}
+.kpi .kl{font-size:11px;color:#6B7280;margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.kpi .kv{font-size:28px;font-weight:600;letter-spacing:-.5px}
+.kpi .kv.g{color:#059669}.kpi .kv.b{color:#1D4ED8}
+.kpi .ks{font-size:11px;color:#9CA3AF;margin-top:3px}
+.main-grid{max-width:1060px;margin:0 auto 18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stream-card{background:#fff;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden}
+.shdr{padding:14px 18px;border-bottom:1px solid #F3F4F6}
+.shdr.bl{border-top:4px solid #2563EB}.shdr.gr{border-top:4px solid #059669}
+.stag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.stag.bl{color:#1D4ED8}.stag.gr{color:#065F46}
+.sname{font-size:14px;font-weight:600;color:#0F1117;margin-bottom:1px}
+.ssub{font-size:11px;color:#9CA3AF}
+.iphone-pill{display:inline-flex;align-items:center;gap:5px;background:#ECFDF5;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:#065F46;margin-top:5px}
+.acc-btn{display:flex;align-items:center;justify-content:space-between;padding:9px 18px;cursor:pointer;border:none;border-bottom:1px solid #F3F4F6;background:none;width:100%;text-align:left}
+.acc-btn:hover{background:#FAFAFA}
+.acc-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9CA3AF}
+.acc-arrow{font-size:10px;color:#9CA3AF;transition:transform .2s}
+.acc-arrow.open{transform:rotate(180deg)}
+.acc-body{display:none;border-bottom:1px solid #F3F4F6}
+.acc-body.open{display:block}
+.desc-wrap{padding:14px 18px;background:#FAFAFA}
+.desc-text{font-size:12px;color:#4B5563;line-height:1.65;margin-bottom:12px}
+.steps-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9CA3AF;margin-bottom:8px}
+.step-item{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.step-item:last-child{margin-bottom:0}
+.step-n{width:20px;height:20px;min-width:20px;border-radius:50%;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.step-n.bl{background:#EFF6FF;color:#1D4ED8}
+.step-n.gr{background:#ECFDF5;color:#065F46}
+.step-t{font-size:12px;color:#4B5563;line-height:1.5}
+.step-t strong{color:#0F1117;font-weight:500}
+.sliders{padding:12px 18px;border-bottom:1px solid #F3F4F6}
+.sl-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.sl-row:last-child{margin-bottom:0}
+.sl-row label{font-size:12px;color:#6B7280;flex:1;min-width:0}
+.sl-row input[type=range]{-webkit-appearance:none;appearance:none;width:88px;height:4px;border-radius:4px;background:#E5E7EB;outline:none;flex-shrink:0;cursor:pointer}
+.sl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#2563EB;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px #2563EB}
+.green-card .sl-row input[type=range]::-webkit-slider-thumb{background:#059669;box-shadow:0 0 0 1px #059669}
+.sl-val{font-size:12px;font-weight:600;color:#0F1117;min-width:56px;text-align:right}
+.tools-wrap{padding:12px 18px;border-bottom:1px solid #F3F4F6}
+.tools-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#9CA3AF;margin-bottom:7px}
+.tool-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;border-bottom:1px solid #F9FAFB}
+.tool-row:last-child{border:none}
+.tn{color:#6B7280}.tc{font-weight:600;color:#0F1117}
+.tc.free{color:#059669}
+.tool-total{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#0F1117;padding-top:7px;border-top:1px solid #E5E7EB;margin-top:3px}
+.jobber-wrap{padding:10px 18px;border-bottom:1px solid #F3F4F6;background:#FFFBEB}
+.jobber-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;margin-bottom:5px}
+.jobber-toggle input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:#D97706}
+.jobber-toggle-label{font-size:11px;font-weight:600;color:#92400E}
+.jobber-badge{background:#FEF3C7;color:#92400E;border-radius:20px;font-size:9px;font-weight:600;padding:1px 7px;letter-spacing:.3px;margin-left:4px}
+.jobber-desc{font-size:11px;color:#78716C;line-height:1.5;margin-top:2px}
+.jobber-cost{font-size:11px;font-weight:600;color:#D97706;margin-top:4px}
+.results{padding:12px 18px}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;border-bottom:1px solid #F9FAFB}
+.rr:last-child{border:none;font-weight:600;font-size:13px;padding-top:7px}
+.rl{color:#6B7280}
+.rv.pos{color:#059669;font-weight:500}
+.rv.neg{color:#DC2626;font-weight:500}
+.rv.net{color:#0F1117;font-weight:600}
+.net-wrap{max-width:1060px;margin:0 auto;background:#0F1117;border-radius:16px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.net-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.net-detail{font-size:11px;color:#6B7280}
+.net-val{font-size:40px;font-weight:600;color:#34D399;letter-spacing:-1px;text-align:right}
+.net-sub{font-size:11px;color:#6B7280;text-align:right;margin-top:2px}
+</style>
+</head>
+<body>
+<script>
+(function(){
+  var EXPIRES = 1776450199949;
+  if (Date.now() > EXPIRES) {
+    document.documentElement.innerHTML = [
+      '<html><body style="font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;',
+      'height:100vh;margin:0;background:#F0F2F5;flex-direction:column;gap:12px;">',
+      '<div style="font-size:18px;font-weight:600;color:#0F1117">This calculator has expired.</div>',
+      '<div style="font-size:13px;color:#6B7280">This link was valid for 24 hours. Contact Michael for an updated version.</div>',
+      '</body></html>'
+    ].join('');
+    return;
+  }
+  var ms = EXPIRES - Date.now();
+  var h = Math.floor(ms/3600000);
+  var m = Math.floor((ms%3600000)/60000);
+  var tag = document.createElement('div');
+  tag.id = 'exp-tag';
+  tag.style.cssText = 'position:fixed;bottom:14px;right:16px;background:#1A1A2E;color:#6B7280;font-family:Inter,sans-serif;font-size:10px;padding:5px 10px;border-radius:20px;z-index:9999;letter-spacing:.3px';
+  tag.textContent = 'expires in ' + h + 'h ' + m + 'm';
+  document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(tag); });
+})();
+</script>
+
+
+<div class="page-header">
+  <div>
+    <h1>The Joseph Group — AI Value Calculator</h1>
+    <p>Adjust sliders to match your actual numbers. Role cost excluded — pure business value only.</p>
+  </div>
+  <div class="hbadge">April 2026 · Confidential</div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kl">Annual value generated</div><div class="kv g" id="k1">—</div><div class="ks">gross savings before subscription costs</div></div>
+  <div class="kpi"><div class="kl">Annual subscription cost</div><div class="kv b" id="k2">—</div><div class="ks">all tools combined · no hardware</div></div>
+  <div class="kpi"><div class="kl">Net value to The Joseph Group</div><div class="kv g" id="k3">—</div><div class="ks">after all subscription costs</div></div>
+</div>
+
+<div class="main-grid">
+
+  <!-- STREAM 1 -->
+  <div class="stream-card">
+    <div class="shdr bl">
+      <div class="stag bl">Stream 1 — Sales efficiency</div>
+      <div class="sname">HubSpot · Fathom · Calendly</div>
+      <div class="ssub">Subscription tools only · no build required · live in 2 days</div>
+    </div>
+
+    <button class="acc-btn" onclick="tog('s1d',this)">
+      <span class="acc-label">How it works — click to expand</span>
+      <span class="acc-arrow" id="s1d-arr">▼</span>
+    </button>
+    <div class="acc-body" id="s1d">
+      <div class="desc-wrap">
+        <p class="desc-text">Right now every sales rep spends 3–4 hours a day on admin — scheduling emails, writing call notes, updating HubSpot, drafting follow-ups. That time is being paid for but not generating revenue. This stack eliminates all of it. The rep shows up, has the conversation, and leaves. Every other step happens automatically.</p>
+        <div class="steps-lbl">Step-by-step workflow</div>
+        <div class="step-item"><div class="step-n bl">1</div><div class="step-t"><strong>Prospect books a call.</strong> Rep shares their Calendly link. Prospect picks a time — Zoom link generated, confirmations and reminders sent, HubSpot contact created. Zero emails exchanged.</div></div>
+        <div class="step-item"><div class="step-n bl">2</div><div class="step-t"><strong>Call starts.</strong> Fathom joins automatically. Rep focuses entirely on the conversation — no notes, no typing, no distraction.</div></div>
+        <div class="step-item"><div class="step-n bl">3</div><div class="step-t"><strong>Call ends.</strong> Fathom delivers a full AI summary — key points, objections, next steps, action items — within 30 seconds. Automatically posted to the correct HubSpot contact record and deal.</div></div>
+        <div class="step-item"><div class="step-n bl">4</div><div class="step-t"><strong>Follow-up drafted.</strong> Fathom writes the post-call email from the transcript. Rep reads, edits if needed, and sends in under 60 seconds. No writing required.</div></div>
+        <div class="step-item"><div class="step-n bl">5</div><div class="step-t"><strong>HubSpot updated.</strong> Deal stage moved, call logged, tasks created from action items — all automatically. Rep moves straight to the next call.</div></div>
+        <div class="step-item"><div class="step-n bl">6</div><div class="step-t"><strong>Time recovered = more calls.</strong> 3 hours of admin recovered per rep per day means 3 more prospect conversations per day. Each one is a chance to close a new management mandate.</div></div>
+      </div>
+    </div>
+
+    <div class="sliders">
+      <div class="sl-row"><label>Sales reps</label><input type="range" id="reps" min="1" max="12" value="3" step="1"><span class="sl-val" id="lreps">3</span></div>
+      <div class="sl-row"><label>Admin hrs saved / rep / day</label><input type="range" id="admin" min="1" max="5" value="3" step="1"><span class="sl-val" id="ladmin">3 hrs</span></div>
+      <div class="sl-row"><label>Rep hourly rate ($)</label><input type="range" id="repval" min="20" max="80" value="40" step="5"><span class="sl-val" id="lrepval">$40</span></div>
+      <div class="sl-row"><label>Extra calls / rep / day</label><input type="range" id="calls" min="1" max="6" value="3" step="1"><span class="sl-val" id="lcalls">3</span></div>
+      <div class="sl-row"><label>Close rate (%)</label><input type="range" id="close" min="5" max="40" value="15" step="5"><span class="sl-val" id="lclose">15%</span></div>
+      <div class="sl-row"><label>Annual management fee ($)</label><input type="range" id="fee" min="800" max="3000" value="1800" step="100"><span class="sl-val" id="lfee">$1,800</span></div>
+    </div>
+
+    <div class="tools-wrap">
+      <div class="tools-lbl">Monthly subscriptions</div>
+      <div class="tool-row"><span class="tn">HubSpot Starter — CRM + pipeline</span><span class="tc">$20 / mo</span></div>
+      <div class="tool-row"><span class="tn">Fathom Premium — AI notetaker</span><span class="tc" id="t_f">—</span></div>
+      <div class="tool-row"><span class="tn">Calendly Standard — scheduling</span><span class="tc" id="t_c">—</span></div>
+      <div class="tool-total"><span>Stream 1 total</span><span id="t_s1">—</span></div>
+    </div>
+
+    <div class="results">
+      <div class="rr"><span class="rl">Admin time recovered</span><span class="rv pos" id="r_admin">—</span></div>
+      <div class="rr"><span class="rl">New mandates closed</span><span class="rv pos" id="r_mandates">—</span></div>
+      <div class="rr"><span class="rl">Subscription cost / yr</span><span class="rv neg" id="r_s1c">—</span></div>
+      <div class="rr"><span class="rl">Stream 1 net value</span><span class="rv net" id="r_s1n">—</span></div>
+    </div>
+  </div>
+
+  <!-- STREAM 2 -->
+  <div class="stream-card green-card">
+    <div class="shdr gr">
+      <div class="stag gr">Stream 2 — Drive-by field intelligence</div>
+      <div class="sname">iPhone · Otter.ai · Zapier · HubSpot</div>
+      <div class="iphone-pill">
+        <svg width="9" height="12" viewBox="0 0 9 12" fill="none"><rect x=".5" y=".5" width="8" height="11" rx="1.5" stroke="#065F46"/><circle cx="4.5" cy="9.5" r=".8" fill="#065F46"/><rect x="3" y=".5" width="3" height="1" rx=".5" fill="#065F46"/></svg>
+        Employee-owned iPhone · $0 hardware cost
+      </div>
+    </div>
+
+    <button class="acc-btn" onclick="tog('s2d',this)">
+      <span class="acc-label">How it works — click to expand</span>
+      <span class="acc-arrow" id="s2d-arr">▼</span>
+    </button>
+    <div class="acc-body" id="s2d">
+      <div class="desc-wrap">
+        <p class="desc-text">Property managers currently spend 45–90 minutes per drive-by on manual admin — typing notes, writing emails, creating maintenance requests. Observations get forgotten before reaching the office, and sales opportunities hidden inside routine inspections are never surfaced. This stack turns the iPhone already in their pocket into a complete field intelligence system that feeds directly into HubSpot.</p>
+        <div class="steps-lbl">Step-by-step workflow</div>
+        <div class="step-item"><div class="step-n gr">1</div><div class="step-t"><strong>Manager opens Otter.ai on their iPhone</strong> and taps record before entering the property. No setup, no equipment — the phone they already carry does everything.</div></div>
+        <div class="step-item"><div class="step-n gr">2</div><div class="step-t"><strong>Walks and talks.</strong> Speaks observations aloud as they inspect — roof condition, landscaping, interior issues. Otter transcribes in real time. iPhone camera documents damage or issues that need visual evidence.</div></div>
+        <div class="step-item"><div class="step-n gr">3</div><div class="step-t"><strong>Recording ends.</strong> Otter saves the full transcript to the shared workspace automatically. Manager walks away — no typing, no emails, no notes written.</div></div>
+        <div class="step-item"><div class="step-n gr">4</div><div class="step-t"><strong>Zapier detects the new recording,</strong> pulls the transcript, and routes it to the correct HubSpot property record — matched automatically by recording title set to the property address.</div></div>
+        <div class="step-item"><div class="step-n gr">5</div><div class="step-t"><strong>AI classifies severity.</strong> Cosmetic → note logged only. Maintenance-required → ticket created, vendor notified with details. Urgent → emergency flag raised, owner alerted immediately.</div></div>
+        <div class="step-item"><div class="step-n gr">6</div><div class="step-t"><strong>Sales intelligence trigger.</strong> Good condition + long-tenure owner → upsell flag sent to sales rep with owner details and suggested talking points. Drive-by becomes a lead source.</div></div>
+        <div class="step-item"><div class="step-n gr">7</div><div class="step-t"><strong>Owner receives inspection summary</strong> automatically drafted and sent. Professional, timestamped, zero writing required from the manager.</div></div>
+      </div>
+    </div>
+
+    <div class="sliders">
+      <div class="sl-row"><label>Property managers</label><input type="range" id="mgrs" min="1" max="15" value="5" step="1"><span class="sl-val" id="lmgrs">5</span></div>
+      <div class="sl-row"><label>Drive-bys / manager / week</label><input type="range" id="db" min="5" max="40" value="20" step="5"><span class="sl-val" id="ldb">20</span></div>
+      <div class="sl-row"><label>Minutes saved / drive-by</label><input type="range" id="minsave" min="15" max="90" value="45" step="15"><span class="sl-val" id="lminsave">45 min</span></div>
+      <div class="sl-row"><label>Manager hourly rate ($)</label><input type="range" id="mgrval" min="15" max="50" value="22" step="1"><span class="sl-val" id="lmgrval">$22</span></div>
+      <div class="sl-row"><label>Lead rate / drive-by (%)</label><input type="range" id="lr" min="1" max="15" value="5" step="1"><span class="sl-val" id="llr">5%</span></div>
+      <div class="sl-row"><label>Annual management fee ($)</label><input type="range" id="fee2" min="800" max="3000" value="1800" step="100"><span class="sl-val" id="lfee2">$1,800</span></div>
+    </div>
+
+    <div class="tools-wrap">
+      <div class="tools-lbl">Monthly subscriptions — no hardware</div>
+      <div class="tool-row"><span class="tn">Otter.ai Pro — voice transcription (shared)</span><span class="tc">$10 / mo</span></div>
+      <div class="tool-row"><span class="tn">Zapier Starter — CRM routing + automation</span><span class="tc">$20 / mo</span></div>
+      <div class="tool-row"><span class="tn">iPhone camera + microphone</span><span class="tc free">$0 — already owned</span></div>
+      <div class="tool-total"><span>Stream 2 base total</span><span>$30 / mo</span></div>
+    </div>
+
+    <div class="jobber-wrap">
+      <label class="jobber-toggle">
+        <input type="checkbox" id="jobber_toggle" onchange="calc()">
+        <span class="jobber-toggle-label">+ Add Jobber route optimisation</span>
+        <span class="jobber-badge">POTENTIAL ADD-ON</span>
+      </label>
+      <div class="jobber-desc">Jobber automatically builds the most efficient daily inspection route for each manager, sends turn-by-turn directions to their iPhone, and re-optimises in real time when visits are added or cancelled. Includes appointment scheduling, GPS dispatch, and connects to HubSpot via Zapier. Recommended when managers are running 3+ drive-bys per day and manual route planning is burning time before the inspection even starts.</div>
+      <div class="jobber-cost">+$99 / mo · Connect plan · up to 5 users · route optimisation included</div>
+    </div>
+
+    <div class="results">
+      <div class="rr"><span class="rl">Drive-by time recovered</span><span class="rv pos" id="r_time">—</span></div>
+      <div class="rr"><span class="rl">Leads surfaced → revenue</span><span class="rv pos" id="r_leads">—</span></div>
+      <div class="rr"><span class="rl">Subscription cost / yr</span><span class="rv neg" id="r_s2c">—</span></div>
+      <div class="rr"><span class="rl">Stream 2 net value</span><span class="rv net" id="r_s2n">—</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="net-wrap">
+  <div>
+    <div class="net-title">Annual value delivered to The Joseph Group</div>
+    <div class="net-detail" id="nd">Adjust sliders to match your actual numbers</div>
+  </div>
+  <div>
+    <div class="net-val" id="nv">—</div>
+    <div class="net-sub" id="ns">—</div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const g=id=>+$(id).value;
+
+function tog(id, btn) {
+  const body=$(id), arr=$(id+'-arr');
+  const open=body.classList.toggle('open');
+  arr.classList.toggle('open',open);
+  btn.querySelector('.acc-label').textContent = open ? 'How it works — click to collapse' : 'How it works — click to expand';
+}
+
+function calc(){
+  const reps=g('reps'),admin=g('admin'),repval=g('repval'),
+        calls=g('calls'),cr=g('close')/100,fee=g('fee'),
+        mgrs=g('mgrs'),db=g('db'),minsave=g('minsave'),
+        mgrval=g('mgrval'),lr=g('lr')/100,fee2=g('fee2');
+  const jobber=$('jobber_toggle').checked;
+
+  const s1mo=20+(16*reps)+(10*reps);
+  const s2mo=30+(jobber?99:0);
+
+  $('t_f').textContent='$'+(16*reps)+' / mo';
+  $('t_c').textContent='$'+(10*reps)+' / mo';
+  $('t_s1').textContent='$'+s1mo+' / mo';
+
+  const adminSaved=reps*admin*repval*250;
+  const newMand=Math.round(reps*calls*250*cr);
+  const newRev=newMand*fee;
+  const s1gross=adminSaved+newRev;
+  const s1cost=s1mo*12;
+  const s1net=s1gross-s1cost;
+
+  const totalDbYr=mgrs*db*52;
+  const hrsaved=(minsave/60)*totalDbYr;
+  const timeSaved=hrsaved*mgrval;
+  const leads=Math.round(totalDbYr*lr);
+  const leadRev=Math.round(leads*fee2*0.3);
+  const s2gross=timeSaved+leadRev;
+  const s2cost=s2mo*12;
+  const s2net=s2gross-s2cost;
+
+  const totalGross=s1gross+s2gross;
+  const totalTools=s1cost+s2cost;
+  const netVal=totalGross-totalTools;
+
+  $('r_admin').textContent=fmt(adminSaved);
+  $('r_mandates').textContent=fmt(newRev)+' ('+newMand+' new properties)';
+  $('r_s1c').textContent='−'+fmt(s1cost)+' / yr';
+  $('r_s1n').textContent=fmt(s1net);
+  $('r_time').textContent=fmt(timeSaved);
+  $('r_leads').textContent=fmt(leadRev)+' ('+leads+' leads surfaced)';
+  $('r_s2c').textContent='−'+fmt(s2cost)+' / yr'+(jobber?' (incl. Jobber)':'');
+  $('r_s2n').textContent=fmt(s2net);
+
+  $('k1').textContent=fmt(totalGross);
+  $('k2').textContent=fmt(totalTools)+' / yr';
+  $('k3').textContent=fmt(netVal);
+  $('nv').textContent=fmt(netVal);
+  $('nd').textContent='Stream 1: '+fmt(s1net)+' net  ·  Stream 2: '+fmt(s2net)+' net  ·  Tools: '+fmt(totalTools)+'/yr'+(jobber?' — Jobber included':'');
+  $('ns').textContent=fmt(totalGross)+' gross savings  ·  '+fmt(totalTools)+'/yr in subscriptions';
+}
+
+const pairs=[
+  ['reps','lreps',v=>v],['admin','ladmin',v=>v+' hrs'],['repval','lrepval',v=>'$'+v],
+  ['calls','lcalls',v=>v],['close','lclose',v=>v+'%'],['fee','lfee',v=>'$'+Number(v).toLocaleString()],
+  ['mgrs','lmgrs',v=>v],['db','ldb',v=>v],['minsave','lminsave',v=>v+' min'],
+  ['mgrval','lmgrval',v=>'$'+v],['lr','llr',v=>v+'%'],['fee2','lfee2',v=>'$'+Number(v).toLocaleString()],
+];
+pairs.forEach(([id,lbl,fn])=>{
+  $(id).addEventListener('input',()=>{$(lbl).textContent=fn($(id).value);calc();});
+});
+calc();
+</script>
+</body>
+</html>
