@@ -1,0 +1,132 @@
+Database Schema
+
+This document describes the PostgreSQL schema for the BT.01 construction estimating and operations platform (Supabase). Tables are grouped by functional area. Foreign keys and generated columns are noted inline.
+
+
+Note: schema is provided for reference — column order and constraints may not reflect exact execution order in the live database.
+
+
+
+
+1. Core Reference Data
+
+properties
+
+Physical properties (owned/managed) that projects and estimates are tied to.
+
+ColumnTypeNotesiduuidPKproperty_nametextrequiredaddress, city, state, ziptextstate defaults to WAowner_nametextrequiredowner_email, owner_phonetextproperty_typetextrequirednotestextis_activebooleandefault truecreated_attimestamptzdefault now()
+
+vendors
+
+Suppliers/vendors used for purchasing materials.
+
+ColumnTypeNotesiduuidPKnametextrequiredlocationtextcontact_infotextreliability_scorenumericcreated_attimestamptzdefault now()
+
+items
+
+Material/product catalog.
+
+ColumnTypeNotesiduuidPKnametextrequiredcategory, subcategorytextunit_typetextrequiredstandard_unit_sizenumericpart_numbertextdescriptiontextis_activebooleandefault truecreated_at, updated_attimestamptzdefault now()
+
+item_aliases
+
+Alternate names for items (e.g. vendor-specific naming) to aid receipt matching.
+
+ColumnTypeNotesiduuidPKitem_iduuidFK → items.idaliastextrequired
+
+labor
+
+Labor roster with cost and billing rates.
+
+ColumnTypeNotesiduuidPKnametextrequiredpositiontextrequiredhourly_ratenumericrequired (cost rate)billing_ratenumericgenerated: LEAST(GREATEST(hourly_rate * 2, 125), 175) — bill rate is 2× cost, clamped to $125–$175/hris_activebooleandefault truecreated_attimestamptzdefault now()
+
+consumables
+
+Job-site consumables (non-catalog materials) with a flat unit cost.
+
+ColumnTypeNotesiduuidPKnametextrequiredcategorytextrequiredunit_costnumericrequiredunit_typetextdefault eachis_activebooleandefault truecreated_attimestamptzdefault now()
+
+
+2. Projects
+
+projects
+
+Work performed at a property, tracked with budget and status.
+
+ColumnTypeNotesiduuidPKproject_nametextrequiredproject_typetextrequiredproperty_iduuidFK → properties.idproperty_nametextdenormalized for displaystatustextdefault activestart_date, end_datedatebudgetnumericnotestextis_activebooleandefault truecreated_attimestamptzdefault now()
+
+
+3. Estimating
+
+estimates
+
+Client-facing cost estimates.
+
+ColumnTypeNotesiduuidPKclient_nametextproject_typetextsourcetexte.g. manual, AI-generatedproperty_iduuidFK → properties.idmaterial_cost, labor_costnumericdefault 0margin_percentnumericdefault 20total_cost, final_pricenumericstatustextdefault draftcreated_attimestamptzdefault now()
+
+estimate_line_items
+
+Material line items within an estimate.
+
+ColumnTypeNotesiduuidPKestimate_iduuidFK → estimates.id, requireditem_iduuidFK → items.id, requiredquantity, unit_pricenumericrequiredtotal_costnumericgenerated: quantity * unit_pricesourcetextcreated_attimestamptzdefault now()
+
+estimate_labor
+
+Labor line items within an estimate.
+
+ColumnTypeNotesiduuidPKestimate_iduuidFK → estimates.id, requiredlabor_iduuidFK → labor.id, requiredhoursnumericrequired, CHECK (hours > 0)cost_rate, bill_ratenumericrequiredcost_totalnumericgenerated: hours * cost_ratebill_totalnumericgenerated: hours * bill_ratecreated_attimestamptzdefault now()
+
+estimate_consumables
+
+Consumables line items within an estimate.
+
+ColumnTypeNotesiduuidPKestimate_iduuidFK → estimates.id, requiredconsumable_iduuidFK → consumables.id, requiredquantitynumericdefault 1, CHECK (quantity > 0)unit_costnumericrequiredtotalnumericgenerated: quantity * unit_costcreated_attimestamptzdefault now()
+
+
+4. Receipts & Price Tracking
+
+receipts
+
+Uploaded receipt files (invoices/photos) pending or completed processing.
+
+ColumnTypeNotesiduuidPKvendor_iduuidFK → vendors.idproperty_iduuidFK → properties.idproject_iduuidFK → projects.idfile_url, file_typetextfile_url requiredpurchase_typetextdefault propertypurchase_datedateextracted_totalnumericvendor_detectedtextraw OCR/AI-detected vendor nameprocessedbooleandefault falseprocessing_statustextdefault pendingcreated_attimestamptzdefault now()
+
+receipt_line_items
+
+Individual line items extracted from a receipt, with AI suggestions and human-reviewed matches.
+
+ColumnTypeNotesiduuidPKreceipt_iduuidFK → receipts.id, requiredraw_nametextrequired — as extractedextracted_quantitynumericdefault 1extracted_total_pricenumericdefault 0extracted_unit_pricenumericgenerated: extracted_total_price / extracted_quantityextracted_unit_typetextdefault eachextracted_part_number, extracted_descriptiontextmatched_item_iduuidFK → items.idmatched_item_nametextdenormalizedsuggested_category, suggested_subcategory, suggested_item_name, suggested_unit_type, suggested_part_number, suggested_descriptiontextAI-suggested catalog match/creation fieldsconfidence_levelnumericdefault 0.5statustextdefault pendingreviewed_attimestamptznotestextcreated_attimestamptzdefault now()
+
+price_recordsbible
+
+The "Price Bible" — historical price records per item/vendor, sourced from receipts, used to inform estimating.
+
+ColumnTypeNotesiduuidPKitem_iduuidFK → items.id, requiredvendor_iduuidFK → vendors.id, requiredreceipt_iduuidFK → receipts.idraw_price, quantitynumericrequiredunit_costnumericgenerated: raw_price / quantityunit_typetextrequiredpurchase_datedateconfidence_levelnumericdefault 0.5is_verifiedbooleandefault falsenotestextcreated_attimestamptzdefault now()
+
+
+5. Accounting
+
+accounting_log
+
+Posted accounting record generated per processed receipt — a denormalized summary for bookkeeping/export.
+
+ColumnTypeNotesiduuidPKreceipt_iduuidFK → receipts.idvendor_iduuidFK → vendors.idvendor_name, vendor_detectedtextproperty_iduuidFK → properties.idproperty_nametextdenormalizedproject_iduuidFK → projects.idproject_nametextdenormalizedpurchase_typetextdefault propertypurchase_datedatereceipt_totalnumericline_item_countintegerdefault 0category_breakdownjsonbspend by categoryfile_storage_path, file_typetextstatustextdefault postednotestextlogged_at, created_attimestamptzdefault now()
+
+
+Entity Relationship Overview
+
+properties ──< projects ──< receipts ──< receipt_line_items >── items ──< item_aliases
+    │              │            │                                  │
+    │              │            └──< accounting_log                └──< price_recordsbible >── vendors
+    │              │
+    └──< estimates ──< estimate_line_items >── items
+                   ├──< estimate_labor >── labor
+                   └──< estimate_consumables >── consumables
+
+Notes for contributors
+
+
+All primary keys are uuid, generated via uuid_generate_v4().
+Several columns are database-generated (stored generated columns), not application-computed — don't set them directly on insert (e.g. unit_cost, total_cost, billing_rate).
+price_recordsbible retains its working name from early development; a rename to price_records is a reasonable future cleanup but would require updating dependent FKs.
+Denormalized name columns (property_name, project_name, vendor_name, matched_item_name) exist for read/display convenience and should be kept in sync with their source-of-truth tables at write time.
